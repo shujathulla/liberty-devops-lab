@@ -43,4 +43,4 @@ jobs:
         ssh -i ~/.ssh/id_ed25519 \
         -o StrictHostKeyChecking=no \
         ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} \
-        'cp /tmp/sample.war ~/liberty/wlp/usr/servers/liberty01/dropins/sample.war'
+        'cp /tmp/sample.war /opt/liberty/wlp/usr/servers/liberty01/dropins/sample.war && ls -l /opt/liberty/wlp/usr/servers/liberty01/dropins/sample        .war'
