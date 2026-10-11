@@ -1,0 +1,43 @@
+name: Deploy Liberty App
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+
+    runs-on: ubuntu-latest
+
+    steps:
+
+    - name: Checkout
+      uses: actions/checkout@v4
+
+    - name: Setup Java
+      uses: actions/setup-java@v4
+      with:
+        distribution: temurin
+        java-version: '21'
+
+    - name: Build WAR
+      run: mvn clean package
+
+    - name: Configure SSH
+      run: |
+        mkdir -p ~/.ssh
+        echo "${{ secrets.EC2_SSH_KEY }}" > ~/.ssh/id_rsa
+        chmod 600 ~/.ssh/id_rsa
+
+    - name: Copy WAR
+      run: |
+        scp -o StrictHostKeyChecking=no \
+        target/sample.war \
+        ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }}:/tmp/sample.war
+
+    - name: Deploy WAR
+      run: |
+        ssh -o StrictHostKeyChecking=no \
+        ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} \
+        'cp /tmp/sample.war ~/liberty/wlp/usr/servers/liberty01/dropins/sample.war'
